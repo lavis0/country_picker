@@ -16,6 +16,7 @@ _api_url = "https://www.apicountries.com/countries"
 
 class DataWorker(QObject):
     """Worker class for downloading and handling data."""
+
     resultReady = pyqtSignal(list)
     errorOccurred = pyqtSignal(str)
 
@@ -120,7 +121,8 @@ class MainWindow(QMainWindow):
     def _populate(self, countries: list[str]) -> None:
         """Populate the combo box with country names."""
         # self._combo.clear()
-        self._thread.quit()
+        if self._thread:
+            self._thread.quit()
         self._combo.addItem("")
         self._combo.addItems(countries)
         self._combo.setEnabled(True)
@@ -147,5 +149,6 @@ class MainWindow(QMainWindow):
 
     def _handle_error(self, error_message: str) -> None:
         """Handle errors by showing a message box."""
-        self._thread.quit()
+        if self._thread:
+            self._thread.quit()
         QMessageBox.critical(self, "Error", f"Error: {error_message}")
