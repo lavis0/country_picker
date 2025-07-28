@@ -54,6 +54,7 @@ class DataWorker(QObject):
         try:
             countries_json = json.loads(countries_data.data().decode('utf-8'))
 
+            # Extract country names from the JSON data
             names = []
             for c in countries_json:
                 n = c.get("name")
@@ -63,6 +64,7 @@ class DataWorker(QObject):
                         names.append(cn)
                 elif isinstance(n, str):
                     names.append(n)
+
             countries_sorted = sorted(names)
             self.resultReady.emit(countries_sorted)
         except json.JSONDecodeError as e:
@@ -72,7 +74,7 @@ class DataWorker(QObject):
 class MainWindow(QMainWindow):
     """Main window of the country picker application."""
 
-    def __init__(self):
+    def __init__(self, preselected_country: str):
         """Initialize the main window."""
         super().__init__()
         ui_path = Path(__file__).parent / "resources" / "MainWindow.ui"
@@ -80,6 +82,8 @@ class MainWindow(QMainWindow):
 
         self._combo: QComboBox = self.findChild(QComboBox, "countryComboBox")
         self._label: QLabel = self.findChild(QLabel, "selectionLabel")
+
+        self._preselected_country = preselected_country
 
         self._combo.setEnabled(False)  # Disabled until data is fetched
         self._combo.currentTextChanged.connect(
@@ -120,6 +124,26 @@ class MainWindow(QMainWindow):
         self._combo.addItem("")
         self._combo.addItems(countries)
         self._combo.setEnabled(True)
+
+        self._preselect_country()
+
+    def _preselect_country(self) -> None:
+        """Preselect a country if specified (case-insensitive, startswith)."""
+        if not self._preselected_country:
+            return
+
+        target = self._preselected_country.lower()
+        found_index = -1
+
+        # Find the index of the preselected country (case-insensitive)
+        for i in range(self._combo.count()):
+            item_text = self._combo.itemText(i).lower()
+            if item_text == target:
+                found_index = i
+                break
+
+        if found_index >= 0:
+            self._combo.setCurrentIndex(found_index)
 
     def _handle_error(self, error_message: str) -> None:
         """Handle errors by showing a message box."""

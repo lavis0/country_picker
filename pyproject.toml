@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "country-picker"
+version = "0.1.0"
+description = "A PyQt country picker GUI that loads country names from an API."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+  { name = "Joshua Banga", email = "josh@folient.com" },
+]
+dependencies = [
+  "PyQt6 >=6.0.0,<7"
+]
+
+[project.scripts]
+country-picker = "country_picker.__main__:main"
